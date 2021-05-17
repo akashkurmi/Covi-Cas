@@ -1,0 +1,232 @@
+<div class="container"
+  fxLayout="column">
+  <!-- India  Card-->
+  <div fxLayout
+    fxLayoutAlign="space-between">
+    <span fxLayoutAlign="start center"
+      fxFlex=40
+      fxLayoutGap="5px">
+      <a class="link_color"
+        routerLink="/world"
+        matTooltip="See World Stats"
+        routerLinkActive="active">World Stats</a>
+      <a 
+        routerLink="/"
+        routerLinkActive="active"
+        matTooltip="home">
+        <mat-icon>home</mat-icon>
+      </a>
+    </span>
+    <div fxFlex> {{india[0]?.lastupdatedtime}} : IST </div>
+
+  </div>
+  <div fxFlex
+    fxLayout="row"
+    fxLayoutAlign="space-around center"
+    class="india">
+    <mat-card class="search"
+      fxFlex="100"
+      fxLayout="column">
+      <mat-card-title fxLayoutAlign="center">See Your Zone</mat-card-title>
+      <div fxLayout="row">
+        <mat-form-field fxFlex="90">
+          <input matInput
+            placeholder="Search District"
+            [(ngModel)]="filterName1"
+            name="filterName1"
+            [formControl]="myControl1"
+            [matAutocomplete]="autos">
+          <mat-autocomplete #autos="matAutocomplete" (optionSelected)="getDistrictName($event.option.value)">
+            <mat-option *ngFor="let options of optionsDistrictData | async"
+              [value]="options">
+              {{options}}
+            </mat-option>
+          </mat-autocomplete>
+        </mat-form-field>
+        <button mat-button
+          fxFlex="80px"
+          (click)="clear1()">Clear</button>
+      </div>
+    </mat-card>
+  </div>
+
+  <!-- <button mat-button
+    (click)="getDistrictName()">Get Your Zone</button> -->
+  <!-- India graph -->
+  <mat-card class="india"
+    fxLayout="column">
+    <div class="india">
+      <span class="flag-icon flag-icon-in"> </span>
+      <code class="label-heading">INDIA</code>
+
+    </div>
+    
+
+    <div class="new-cases margin1">
+      Cases: <span style="float: right">{{india[0]?.confirmed}}<span class="supsub"><sub>+{{india[0]?.deltaconfirmed}}</sub></span></span>
+      </div>
+     
+      <div class="warn margin1">
+        Deaths: <span style="float: right">{{india[0]?.deaths}}<span class="supsub"><sup>{{india[0]?.death_percentage}}%</sup><sub>+{{india[0]?.deltadeaths}}</sub></span></span>
+        </div>
+        <div class="recovered margin1">
+          Recovered: <span style="float: right">{{india[0]?.recovered}}<span class="supsub"><sup>{{india[0]?.percentage}}%</sup><sub>+{{india[0]?.deltarecovered}}</sub></span></span>
+          </div>
+        
+          <div class="active-home margin1">
+            Active: <span style="float: right">{{india[0]?.active}}<span class="supsub"><sup></sup><sub></sub></span></span>
+            </div>
+    <div>
+      <ngx-charts-line-chart [scheme]="colorScheme"
+        [view]="view"
+        autoScale
+        legend=true
+        legendPosition=below
+        legendPosition.gt-md=right
+        xAxis=true
+        [curve]="interpolation"
+        xAxisLabel='Dates'
+        yAxisLabel='Cases'
+        [results]="indiaGraph">
+      </ngx-charts-line-chart>
+    </div>
+    <span class="update">+ As per {{india[0]?.lastupdatedtime}} : IST</span>
+
+  </mat-card>
+
+
+  <!-- search div -->
+  <div fxFlex
+    fxLayout="row"
+    fxLayoutAlign="space-around center"
+    class="india">
+    <mat-card class="search"
+      fxFlex="100"
+      fxLayout>
+      <mat-form-field fxFlex="90">
+        <input matInput
+          placeholder="Search State"
+          [(ngModel)]="filterName"
+          name="filterName"
+          [formControl]="myControl"
+          [matAutocomplete]="auto">
+        <mat-autocomplete #auto="matAutocomplete"
+          (optionSelected)="getState($event.option.value)">
+          <mat-option *ngFor="let option of filteredOptions | async"
+            [value]="option">
+            {{option}}
+          </mat-option>
+        </mat-autocomplete>
+      </mat-form-field>
+      <button mat-button
+        fxFlex="80px"
+        (click)="clear()">Clear</button>
+    </mat-card>
+  </div>
+  <div *ngIf="showMessage"
+    fxflex>
+    <mat-card fxLayout
+      fxLayoutAlign="center">
+      <h2 class="not-found warn">Not Found</h2>
+    </mat-card>
+  </div>
+
+  <!-- filter div -->
+
+  <div class="filter" fxLayoutGap="30px" fxFlex>
+    <mat-card  >
+      <mat-form-field fxFlex="100">
+          <mat-label> Sort by:  </mat-label>
+          <mat-select   (selectionChange)="sortData($event.value)">
+              <mat-option *ngFor="let ops of selectOptions" [value]="ops.value" >
+                {{ops.viewValue}}
+              </mat-option>
+            </mat-select>
+        </mat-form-field>
+
+    </mat-card>
+  </div>
+  <!-- main content -->
+  <div fxLayout="column"
+    fxLayoutGap="30px">
+    <div fxFlex
+      *ngFor="let state of statewiseData;index as i">
+      <div fxFlex
+        *ngIf="state.state!=='Total'"
+        fxLayout="column"
+        fxLayoutGap="20px">
+
+        <mat-card fxFlex
+          fxLayout="column"
+          fxLayoutGap="20px"
+          class="district-card">
+          <span fxFlex
+            fxLayout
+            fxLayoutAlign="space-between center">
+            <span class="state"
+              fxFlex=33
+              fxLayoutAlign="start">
+              <span class="label-heading">{{state.state}}</span>
+            </span>
+
+
+
+            <span fxFlex=33
+              fxLayoutAlign="end">
+              <button mat-button
+                matTooltip="Open graph"
+                class="graph-button"
+                (click)="createGraphData(state)">
+                <mat-icon>show_chart</mat-icon> Graph
+              </button>
+            </span>
+
+
+          </span>
+
+          
+          <div class="state-data">
+          <div class="new-cases margin">
+            Cases: <span style="float: right">{{state.confirmed}}<span class="supsub"><sub>+{{state.deltaconfirmed}}</sub></span></span>
+            </div>
+            
+            <div class="warn margin">
+              Deaths: <span style="float: right">{{state.deaths}}<span class="supsub"><sup>{{state.death_percentage}}%</sup><sub>+{{state.deltadeaths}}</sub></span></span>
+              </div>
+              <div class="recovered margin">
+                Recovered: <span style="float: right">{{state.recovered}}<span class="supsub"><sup>{{state.percentage}}%</sup><sub>+{{state.deltarecovered}}</sub></span></span>
+                </div>
+                <div class="active-home margin">
+                  Active: <span style="float: right">{{state.active}}</span>
+                  </div>
+              </div>
+          <span fxflex
+            fxLayout
+            fxLayoutAlign="center">
+            <button mat-button
+              fxFlex=120px
+              fxLayoutAlign="center"
+              color="accent"
+              class="district-button"
+              matTooltip="Open Districts Details"
+              (click)="createDistrictData(state.state,i)">Districts
+              <mat-icon *ngIf="districtDataOne && districtDataOne.index===i">remove_circle_outline</mat-icon>
+              <mat-icon *ngIf="districtDataOne && districtDataOne.index!==i">add_circle_outline</mat-icon>
+
+            </button>
+          </span>
+          <app-district-table fxFlex
+            *ngIf="districtDataOne && districtDataOne.index===i"
+            class="fade-in"
+            [data]="districtDataOne"></app-district-table>
+
+          <span class="update">+ As per {{india[0]?.lastupdatedtime}} : IST</span>
+        </mat-card>
+
+
+
+      </div>
+    </div>
+  </div>
+
+</div>
